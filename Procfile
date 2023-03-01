@@ -1,0 +1,1 @@
+web gunicor smarteyez.wsgi:application --log-file -
