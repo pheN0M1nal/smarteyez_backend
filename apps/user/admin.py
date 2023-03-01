@@ -5,14 +5,7 @@ from django.contrib.auth import admin as auth_admin
 
 from . import models
 
-# # Register your models here.
-# User = get_user_model()
-#
-#
-# @admin.register(User)
-# class UserAdmin(admin.ModelAdmin):
-#     readonly_fields = ['password']
-#     fields = ['username','email','password','fullname']
+# Register your models here.
 
 # Here you have to import the User model from your app!
 from .models import User

@@ -73,6 +73,7 @@ class User(AbstractUser):
             "Unselect this instead of deleting accounts."
         ),
     )
+    License=models.CharField(_("License"),blank=True,null=True,max_length=30)
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
     account_type = models.CharField(_("Account Type"), null=False, blank=False, max_length=32,
                                     choices=UserAccountType.choices())
@@ -100,4 +101,3 @@ class User(AbstractUser):
         verbose_name = _("User")
         verbose_name_plural = _("Users")
         abstract = False
-        # unique_together = [('email', 'username')]

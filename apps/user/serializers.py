@@ -29,13 +29,23 @@ class UserSerializer:
             class Meta:
                 model=get_user_model()
                 exclude=[
+                    "user_id",
+                    "password",
+                    "is_superuser",
+                    "is_staff",
+                    "is_active",
+                    "groups",
+                    "user_permissions"
+                ]
+        class Admin(serializers.ModelSerializer):
+            class Meta:
+                model=get_user_model()
+                exclude=[
+                    "user_id",
                     "password",
                     "is_superuser",
                     "is_staff",
                     "is_active",
                     "groups",
                     "user_permissions",
-                    "first_name",
-                    "last_name",
-                    "username",
                 ]
