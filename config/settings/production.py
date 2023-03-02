@@ -1,5 +1,5 @@
 from .base import *
-
+import dj_database_url
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 if env.bool("DJANGO_USE_MEMORY_DATABASE_AS_MAIN_DB", True):
@@ -10,17 +10,19 @@ if env.bool("DJANGO_USE_MEMORY_DATABASE_AS_MAIN_DB", True):
         }
     }
 else:
+    # DATABASES = {
+    #     "default": {
+    #         "ENGINE": env.str("DJANGO_MAIN_DB_ENGINE"),
+    #         "NAME": env.str("DJANGO_MAIN_DB_NAME"),
+    #         "USER": env.str("DJANGO_MAIN_DB_USER"),
+    #         "PASSWORD": env.str("DJANGO_MAIN_DB_PASSWORD"),
+    #         "HOST": env.str("DJANGO_MAIN_DB_HOST"),
+    #         "PORT": env.int("DJANGO_MAIN_DB_PORT", 5432),
+    #     }
+    # }
     DATABASES = {
-        "default": {
-            "ENGINE": env.str("DJANGO_MAIN_DB_ENGINE"),
-            "NAME": env.str("DJANGO_MAIN_DB_NAME"),
-            "USER": env.str("DJANGO_MAIN_DB_USER"),
-            "PASSWORD": env.str("DJANGO_MAIN_DB_PASSWORD"),
-            "HOST": env.str("DJANGO_MAIN_DB_HOST"),
-            "PORT": env.int("DJANGO_MAIN_DB_PORT", 5432),
-        }
+        "default": dj_database_url.parse(os.environ.get("DJANGO_DATABASE_URL"))
     }
-
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
