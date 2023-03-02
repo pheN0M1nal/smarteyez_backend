@@ -43,7 +43,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     username_validator = UnicodeUsernameValidator()
-
+    parent_user=models.ForeignKey('User',verbose_name='Parent User',on_delete=models.CASCADE,blank=True,default="",null=True, related_name='children',help_text="Only populate for subuser")
     user_id = models.BigAutoField(primary_key=True)
     username = models.CharField(
         _("username"),
@@ -97,6 +97,8 @@ class User(AbstractUser):
         """Return the short name for the user."""
         return self.first_name
 
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
     class Meta:
         verbose_name = _("User")
         verbose_name_plural = _("Users")
