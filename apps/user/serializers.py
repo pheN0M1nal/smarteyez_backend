@@ -19,11 +19,17 @@ class UserSerializer:
         ...
 
     class Create(Base):
+        """serializer for both user and admin"""
         class Meta:
             model = get_user_model()
             fields = ['user_id', 'email', 'username'
                 , 'first_name', 'last_name', 'account_type']
 
+        class SubUser(serializers.ModelSerializer):
+            class Meta:
+                model = get_user_model()
+                fields = ['user_id', 'email', 'username'
+                    , 'first_name', 'last_name', 'account_type','parent_user']
     class Retrieve(Base):
         class User(serializers.ModelSerializer):
             class Meta:
@@ -35,8 +41,9 @@ class UserSerializer:
                     "is_staff",
                     "is_active",
                     "groups",
-                    "user_permissions"
+                    "user_permissions",
                 ]
+        #         Remove this serializer
         class Admin(serializers.ModelSerializer):
             class Meta:
                 model=get_user_model()
@@ -48,4 +55,18 @@ class UserSerializer:
                     "is_active",
                     "groups",
                     "user_permissions",
+                    "parent_user"
+                ]
+        class SubUser(serializers.ModelSerializer):
+            class Meta:
+                model=get_user_model()
+                exclude=[
+                    "user_id",
+                    "password",
+                    "is_superuser",
+                    "is_staff",
+                    "is_active",
+                    "groups",
+                    "user_permissions",
+                    "License",
                 ]

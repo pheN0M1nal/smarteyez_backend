@@ -5,7 +5,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from .enum import UserAccountType
-
+from django.db.models import Q
 
 class UserManager(BaseUserManager):
     use_in_migration = True
@@ -20,7 +20,7 @@ class UserManager(BaseUserManager):
 
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_superuser", False)
-        extra_fields.setdefault("account_type",UserAccountType.USER.value)
+        extra_fields.setdefault("account_type", UserAccountType.USER.value)
         return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email, password, **extra_fields):
@@ -45,10 +45,13 @@ class User(AbstractUser):
     username_validator = UnicodeUsernameValidator()
 
     user_id = models.BigAutoField(primary_key=True)
+    parent_user = models.ForeignKey('self', verbose_name='Parent User', on_delete=models.DO_NOTHING, blank=True,
+                                    null=True, related_name='children'
+                                    , help_text="Only populate for subuser",
+                                    limit_choices_to= {"account_type__in": [UserAccountType.USER.value,UserAccountType.ADMINISTRATOR.value]})
     username = models.CharField(
         _("username"),
         max_length=150,
-        unique=True,
         help_text=_(
             "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
         ),
@@ -73,14 +76,14 @@ class User(AbstractUser):
             "Unselect this instead of deleting accounts."
         ),
     )
-    License=models.CharField(_("License"),blank=True,null=True,max_length=30)
+    License = models.CharField(_("License"), blank=True, null=True, max_length=30)
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
     account_type = models.CharField(_("Account Type"), null=False, blank=False, max_length=32,
                                     choices=UserAccountType.choices())
     objects = UserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ["username"]
 
     def clean(self):
         super().clean()
