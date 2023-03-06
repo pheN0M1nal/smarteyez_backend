@@ -45,7 +45,7 @@ class User(AbstractUser):
     username_validator = UnicodeUsernameValidator()
     parent_user=models.ForeignKey('User',verbose_name='Parent User',on_delete=models.CASCADE,blank=True,default="",null=True, related_name='children',help_text="Only populate for subuser")
     user_id = models.BigAutoField(primary_key=True)
-    parent_user = models.ForeignKey('self', verbose_name='Parent User', on_delete=models.DO_NOTHING, blank=True,
+    parent_user = models.ForeignKey('self', verbose_name='Parent User', on_delete=models.CASCADE, blank=True,
                                     null=True, related_name='children'
                                     , help_text="Only populate for subuser",
                                     limit_choices_to= {"account_type__in": [UserAccountType.USER.value,UserAccountType.ADMINISTRATOR.value]})
@@ -101,7 +101,7 @@ class User(AbstractUser):
         return self.first_name
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'{self.email}-{self.first_name} {self.last_name}'
     class Meta:
         verbose_name = _("User")
         verbose_name_plural = _("Users")

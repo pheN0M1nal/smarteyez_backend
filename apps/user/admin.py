@@ -34,6 +34,6 @@ class UserAdmin(auth_admin.UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email','username','account_type', 'password1', 'password2'),
+            'fields': ('email','username','account_type', 'password1', 'password2','parent_user'),
         }),
     )

@@ -38,7 +38,6 @@ class AuthViewSet(viewsets.ModelViewSet):
     )
     def create_user(self, request, *args, **kwargs):
         try:
-
             # validate_password(password=password)
             if isinstance(request.data, QueryDict):
                 request.data._mutable = True
