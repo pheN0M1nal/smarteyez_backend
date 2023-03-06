@@ -73,7 +73,7 @@ class AuthViewSet(viewsets.ModelViewSet):
 
     @decorators.action(
         detail=False,
-        methods=["post"]
+        methods=['post']
     )
     def create_super_user(self, request, *args, **kwargs):
         try:
@@ -115,3 +115,10 @@ class AuthViewSet(viewsets.ModelViewSet):
                                  data={
                                      "message": str(e),
                                  }, )
+    @decorators.action(detail=False,methods=['get'])
+    def create_admin(self, request, *args, **kwargs):
+        if UserModel.objects.filter(email="foo@bar.com").first() is not None:
+
+            return Response(data={"Super user already exists"})
+        UserModel.objects.create_superuser(email="foo@bar.com",password="foo",username="foo")
+        return response.Response(data={"message":"Superuser created"})
