@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 from .. import env
 import os
-
+from corsheaders.defaults import default_headers as cors_default_headers
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = BASE_DIR / "apps"
@@ -50,12 +50,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
-PROJECT_APPS = ['apps.user.apps.UserConfig',
+PROJECT_APPS = ["corsheaders",
+                'apps.user.apps.UserConfig',
                 'rest_framework',
                 'rest_framework_simplejwt',
                 'rest_framework_simplejwt.token_blacklist', ]
 INSTALLED_APPS += PROJECT_APPS
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -192,3 +194,13 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+#  CORS
+
+if not env.bool("DJANGO_CORS_ALLOW_ALL_ORIGINS",default=False):
+    CORS_ALLOW_ALL_ORIGINS=False
+    CORS_ALLOWED_ORIGINS=env.list("DJANGO_CORS_ALLOWED_ORIGINS",default=False)
+else:
+    CORS_ALLOW_ALL_ORIGINS=True
+
+CORS_ALLOW_HEADERS=list(cors_default_headers)+["secret-key"]
