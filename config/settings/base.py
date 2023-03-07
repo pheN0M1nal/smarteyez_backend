@@ -27,7 +27,7 @@ SECRET_KEY = env.str("DJANGO_SECRET_KEY", 'django-insecure-w!iwie$gd+owg$etn$o9m
 
 CSRF_TRUSTED_ORIGINS = env.list(
     "CSRF_TRUSTED_ORIGINS",
-    default=["https://upstairscontent.com"],
+    default=["https://smart-eyez.onrender.com"],
 )
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DJANGO_DEBUG", True)
