@@ -12,17 +12,13 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from .. import env
+from datetime import timedelta
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = BASE_DIR / "apps"
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-w!iwie$gd+owg$etn$o9mo)(co&8_t)m3=0)wwpz*zf207zs#5'
 SECRET_KEY = env.str("DJANGO_SECRET_KEY", 'django-insecure-w!iwie$gd+owg$etn$o9mo)(co&8_t)m3=0)wwpz*zf207zs#5')
 
 CSRF_TRUSTED_ORIGINS = env.list(
@@ -49,12 +45,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
 ]
-PROJECT_APPS = ['apps.user.apps.UserConfig',
-                'rest_framework',
-                'rest_framework_simplejwt',
-                'rest_framework_simplejwt.token_blacklist', ]
+PROJECT_APPS = ['config',
+                "apps.user.apps.UserConfig",
+                "apps.utils.apps.UtilsConfig", ]
 INSTALLED_APPS += PROJECT_APPS
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -126,19 +125,13 @@ USE_TZ = True
 
 USE_L10N = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "user.User"
+
+# Rest Framework
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
+
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -147,12 +140,9 @@ REST_FRAMEWORK = {
     ]
 }
 
-# Django project settings.py
+# ___________GLOBAL______________________
 
-from datetime import timedelta
-
-...
-
+# ___________JWTSETUP______________________
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
@@ -193,6 +183,10 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+# ___________EMAIL______________________
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_VERIFY_PAGE = env.str('DJANGO_EMAIL_VERIFY_PAGE', '*******')
+EMAIL_VERIFICATION_TOKEN_EXPIRATION_SECS = env.str('DJANGO_EMAIL_VERIFICATION_TOKEN_EXPIRATION_SECS', 2000)
 
-if DEBUG==True:
-    SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"]=timedelta(hours=1)
+if DEBUG == True:
+    SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"] = timedelta(hours=1)

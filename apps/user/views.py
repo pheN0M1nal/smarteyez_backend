@@ -3,10 +3,11 @@ from django.db import transaction
 from django.http import QueryDict
 from .serializers import UserSerializer
 from rest_framework import response, status, viewsets, decorators
-from .enum import UserAccountType
+from apps.utils.enum import UserAccountType
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from rest_framework.permissions import IsAuthenticated,IsAdminUser,AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
+# from .models import EmailVerificationToken
 # Create your views here.
 UserModel = get_user_model()
 
@@ -24,7 +25,8 @@ class AuthViewSet(viewsets.ModelViewSet):
             return [IsAdminUser()]
         if self.action in ["create_sub_user"]:
             return [IsAuthenticated()]
-
+        else:
+            return [AllowAny()]
     def get_auth_token_data(self, user):
         data = {}
         refresh = RefreshToken.for_user(user)
@@ -83,8 +85,6 @@ class AuthViewSet(viewsets.ModelViewSet):
     )
     def create_super_user(self, request, *args, **kwargs):
         try:
-
-            # validate_password(password=password)
             if isinstance(request.data, QueryDict):
                 request.data._mutable = True
             request.data['account_type'] = UserAccountType.ADMINISTRATOR.value
@@ -112,6 +112,7 @@ class AuthViewSet(viewsets.ModelViewSet):
                                                             context=self.get_serializer_context()).data
             auth_token = self.get_auth_token_data(instance)
             response_data = {**user_data, "token": auth_token}
+            transaction.on_commit(lambda : self.initialize_verify_email(instance))
             return response.Response(status=status.HTTP_201_CREATED,
                                      data={
                                          "message": "The user is created successfully",
@@ -166,3 +167,24 @@ class AuthViewSet(viewsets.ModelViewSet):
                                  data={
                                      "message": str(e),
                                  }, )
+
+    def initialize_verify_email(self,instance : UserModel):
+        instance.has_pending_email_verification(False)
+        instance.save()
+        # token_instance: models.EmailVerificationToken.objects.create(owner=instance)
+        # message=MessageTemplates(token_instance.token)
+    #     Resolve the model error here tomorrow
+
+    # @decorators.action(detail=False,
+    #     methods=['GET'])
+    def send_email(self,request,*args,**kwargs):
+        from django.core.mail import send_mail
+        from apps.utils.message_templates import MessageTemplates
+        send_mail(
+            'Subject here',
+            MessageTemplates.email_verification_email('abc'),
+            'haseebahmed2624@gmail.com',
+            ['haseeb.ahmed@deutics.com'],
+            fail_silently=False,
+        )
+        return response.Response(status=status.HTTP_400_BAD_REQUEST, data={"message": "successful"})
