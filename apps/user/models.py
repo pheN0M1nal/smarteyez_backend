@@ -136,4 +136,3 @@ class EmailVerificationToken(BaseModelMixin):
     class Meta:
         verbose_name=_("Email Verification Token")
         verbose_name_plural=_("Email Verification Tokens")
-        app_label='user'
