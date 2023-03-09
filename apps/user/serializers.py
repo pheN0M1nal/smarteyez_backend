@@ -23,13 +23,13 @@ class UserSerializer:
         class Meta:
             model = get_user_model()
             fields = ['user_id', 'email', 'username'
-                , 'first_name', 'last_name', 'account_type']
+                , 'first_name', 'last_name', 'account_type','phone_number']
 
         class SubUser(serializers.ModelSerializer):
             class Meta:
                 model = get_user_model()
                 fields = ['user_id', 'email', 'username'
-                    , 'first_name', 'last_name', 'account_type','parent_user']
+                    , 'first_name', 'last_name', 'account_type','parent_user','phone_number']
     class Retrieve(Base):
         class User(serializers.ModelSerializer):
             class Meta:

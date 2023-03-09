@@ -53,13 +53,6 @@ class AuthViewSet(viewsets.ModelViewSet):
         serializer = self.serializer_class.Create(data=request.data)
         if (serializer.is_valid()):
             password = request.data.get("password")
-            if password != request.data.get("confirm_password") or password == None:
-                return response.Response(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    data={
-                        "errors": ["passwords do not match"],
-                    },
-                )
             instance: UserModel = serializer.save()
             instance.parent_user = request.user
             instance.set_password(password)
@@ -93,13 +86,6 @@ class AuthViewSet(viewsets.ModelViewSet):
         # serializer.is_valid(raise_exception=True)
         if (serializer.is_valid()):
             password = request.data.get("password")
-            if password != request.data.get("confirm_password") or password == None:
-                return response.Response(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    data={
-                        "errors": ["passwords do not match"],
-                    },
-                )
             instance: UserModel = serializer.save()
             instance.parent_user = request.user
             instance.set_password(password)
@@ -134,13 +120,6 @@ class AuthViewSet(viewsets.ModelViewSet):
         # serializer.is_valid(raise_exception=True)
         if (serializer.is_valid()):
             password = request.data.get("password")
-            if password != request.data.get("confirm_password") or password == None:
-                return response.Response(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    data={
-                        "errors": ["passwords do not match"],
-                    },
-                )
             instance: UserModel = serializer.save()
             instance.parent_user = request.user
             instance.set_password(password)

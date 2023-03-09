@@ -12,6 +12,8 @@ from django.conf import settings
 from apps.utils import tasks as background_tasks
 
 from apps.utils.helpers.email_messaging.helper import send_email
+
+
 class UserManager(BaseUserManager):
     use_in_migration = True
 
@@ -43,9 +45,6 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     username_validator = UnicodeUsernameValidator()
-    parent_user = models.ForeignKey('User', verbose_name='Parent User', on_delete=models.CASCADE, blank=True,
-                                    default="", null=True, related_name='children',
-                                    help_text="Only populate for subuser")
     user_id = models.BigAutoField(primary_key=True)
     parent_user = models.ForeignKey('self', verbose_name='Parent User', on_delete=models.CASCADE, blank=True,
                                     null=True, related_name='children'
@@ -83,24 +82,22 @@ class User(AbstractUser):
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
     account_type = models.CharField(_("Account Type"), null=False, blank=False, max_length=32,
                                     choices=UserAccountType.choices())
+    phone_number = models.CharField(_("Phone Number"), null=False, blank=True, max_length=50, unique=False)
+    is_phone_number_verified = models.BooleanField(_("Phone Number Verified?"), default=False, blank=False, null=False)
     is_email_verified = models.BooleanField(_("Email Verified?"), default=False, blank=True, null=False)
     objects = UserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
-
-    def send_email(self,subject,message,ignore_verification=True,greeting_prefix="Hi"):
-        assert self.email,f"{self.get_full_name()} doesn't have a valid email address"
+    def send_email(self, subject, message, ignore_verification=True, greeting_prefix="Hi"):
+        assert self.email, f"{self.get_full_name()} doesn't have a valid email address"
         if not ignore_verification and not self.is_email_verified:
-            return background_tasks.send_email_to_user(self.user_id, subject,message,greeting_prefix)
+            return background_tasks.send_email_to_user(self.user_id, subject, message, greeting_prefix)
 
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
-
-    # def has_pending_email_verification_request(self, is_verified: bool):
-    #     self.is_email_verified = is_verified
 
     def get_full_name(self):
         """
@@ -109,9 +106,9 @@ class User(AbstractUser):
         full_name = "%s %s" % (self.first_name, self.last_name)
         return full_name.strip()
 
-    def get_short_name(self):
-        """Return the short name for the user."""
-        return self.first_name
+    def verify_phone_number(self):
+        self.is_phone_number_verified = True
+        self.save()
 
     def __str__(self):
         return f'{self.email}-{self.first_name} {self.last_name}'
@@ -120,10 +117,13 @@ class User(AbstractUser):
         verbose_name = _("User")
         verbose_name_plural = _("Users")
         abstract = False
-        app_label='user'
+        app_label = 'user'
+
+
 class EmailVerificationToken(BaseModelMixin):
     def create_token(self):
         return secrets.token_hex(16)
+
     owner = models.ForeignKey("user.User",
                               on_delete=models.CASCADE,
                               null=False,
@@ -134,14 +134,16 @@ class EmailVerificationToken(BaseModelMixin):
                              blank=True,
                              default=secrets.token_hex(16),
                              editable=False,
-                             max_length=100,)
+                             max_length=100, )
+
     def __str__(self):
         return f'EmailVerificationToken - {self.owner}'
 
     def is_expired(self):
-        return timezone.now() > (self.date_added + timezone.timedelta(seconds=settings.EMAIL_VERIFICATION_TOKEN_EXPIRATION_SECS))
+        return timezone.now() > (
+                    self.date_added + timezone.timedelta(seconds=settings.EMAIL_VERIFICATION_TOKEN_EXPIRATION_SECS))
 
     class Meta:
-        verbose_name=_("Email Verification Token")
-        verbose_name_plural=_("Email Verification Tokens")
-        app_label='user'
+        verbose_name = _("Email Verification Token")
+        verbose_name_plural = _("Email Verification Tokens")
+        app_label = 'user'
