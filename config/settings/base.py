@@ -19,7 +19,7 @@ import os
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = BASE_DIR / "apps"
 
-SECRET_KEY = env.str("DJANGO_SECRET_KEY", 'django-insecure-w!iwie$gd+owg$etn$o9mo)(co&8_t)m3=0)wwpz*zf207zs#5')
+SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 
 CSRF_TRUSTED_ORIGINS = env.list(
     "CSRF_TRUSTED_ORIGINS",
@@ -31,11 +31,8 @@ DEBUG = env.bool("DJANGO_DEBUG", True)
 if env.bool("DJANGO_ALLOW_ALL_HOSTS"):
     ALLOWED_HOSTS = ["*", ]
 else:
-    ALLOWED_HOSTS = env.list(
-        "DJANGO_ALLOWED_HOSTS",
-        default=[
-            "*",
-        ])
+    ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS",default=["*",])
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -151,7 +148,7 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": False,
 
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": env.str("DJANGO_SECRET_KEY", 'django-insecure-w!iwie$gd+owg$etn$o9mo)(co&8_t)m3=0)wwpz*zf207zs#5'),
+    "SIGNING_KEY": env.str("DJANGO_SECRET_KEY"),
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,

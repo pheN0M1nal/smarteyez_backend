@@ -1,7 +1,6 @@
-import heroku as heroku
 
 from .base import *
-import django_on_heroku
+
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -30,4 +29,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 USING_MANAGED_STORAGE = False
 DEVELOPMENT_MODE = False
-django_on_heroku.settings(locals())
