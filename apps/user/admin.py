@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 # Register your models here.
 
 # Here you have to import the User model from your app!
-from .models import User
+from .models import User,EmailVerificationToken
 
 
 @admin.register(User)
@@ -37,3 +37,12 @@ class UserAdmin(auth_admin.UserAdmin):
             'fields': ('email','username','account_type', 'password1', 'password2','parent_user'),
         }),
     )
+
+@admin.register(EmailVerificationToken)
+class TokenAdmin(admin.ModelAdmin):
+    list_display=['owner','token']
+    search_fields = ['owner__email']
+    fieldsets = (
+        (_("Token"), {"fields": ("owner", "token")}),
+    )
+    readonly_fields = ['owner','token']

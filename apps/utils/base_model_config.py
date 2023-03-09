@@ -1,6 +1,6 @@
 from django.db import models
 import secrets
-from django.apps import apps
+# from django.apps import apps
 import gc
 from django.utils import timezone
 
@@ -47,15 +47,3 @@ class BaseModelMixin(models.Model):
 def create_token():
     # Create random 16 bytes hex token
     return secrets.token_hex(16)
-
-
-def get_app_model(model_name):
-    model = None
-    for app_conf in apps.get_app_configs():
-        try:
-            model = app_conf.get_model(model_name)
-            break  # stop as soon as it is found
-        except LookupError:
-            # no such model in this application
-            pass
-    return model

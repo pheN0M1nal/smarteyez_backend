@@ -9,6 +9,9 @@ from django.utils.translation import gettext_lazy as _
 from apps.utils.enum import UserAccountType
 from apps.utils.base_model_config import BaseModelMixin
 from django.conf import settings
+from apps.utils import tasks as background_tasks
+
+from apps.utils.helpers.email_messaging.helper import send_email
 class UserManager(BaseUserManager):
     use_in_migration = True
 
@@ -86,12 +89,18 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
+
+    def send_email(self,subject,message,ignore_verification=True,greeting_prefix="Hi"):
+        assert self.email,f"{self.get_full_name()} doesn't have a valid email address"
+        if not ignore_verification and not self.is_email_verified:
+            return background_tasks.send_email_to_user(self.user_id, subject,message,greeting_prefix)
+
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
 
-    def has_pending_email_verification(self, is_verified: bool):
-        self.is_email_verified = is_verified
+    # def has_pending_email_verification_request(self, is_verified: bool):
+    #     self.is_email_verified = is_verified
 
     def get_full_name(self):
         """
@@ -111,9 +120,8 @@ class User(AbstractUser):
         verbose_name = _("User")
         verbose_name_plural = _("Users")
         abstract = False
-
+        app_label='user'
 class EmailVerificationToken(BaseModelMixin):
-
     def create_token(self):
         return secrets.token_hex(16)
     owner = models.ForeignKey("user.User",
@@ -124,7 +132,7 @@ class EmailVerificationToken(BaseModelMixin):
     token = models.CharField(_("Token"),
                              null=False,
                              blank=True,
-                             default=create_token,
+                             default=secrets.token_hex(16),
                              editable=False,
                              max_length=100,)
     def __str__(self):
@@ -136,3 +144,4 @@ class EmailVerificationToken(BaseModelMixin):
     class Meta:
         verbose_name=_("Email Verification Token")
         verbose_name_plural=_("Email Verification Tokens")
+        app_label='user'
