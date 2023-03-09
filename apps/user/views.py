@@ -11,7 +11,7 @@ from user import models
 from apps.utils.message_templates import MessageTemplates
 from django.shortcuts import Http404, get_object_or_404
 from django.core.mail import send_mail
-
+from apps.utils.permissions import IsUserOrAdmin
 # from .models import EmailVerificationToken
 # Create your views here.
 
@@ -29,8 +29,10 @@ class AuthViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ["create_user", "create_super_user"]:
             return [IsAdminUser()]
-        elif self.action in ["create_sub_user", "initiate_verify_email"]:
-            return [IsAuthenticated()]
+        elif self.action in ["create_sub_user" ]:
+            return [IsUserOrAdmin()]
+        elif self.action in ["initiate_verify_email"]:
+            return [IsAuthenticated]
         else:
             return [AllowAny()]
 
