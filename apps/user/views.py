@@ -170,3 +170,10 @@ class AuthViewSet(viewsets.ModelViewSet):
             return response.Response(status=status.HTTP_400_BAD_REQUEST, data={"errors": ["expired token"],
                                                                 "message": "You specified a invalid verification token"})
     # Start from here tomorrow
+    @decorators.action(detail=False,methods=['get'])
+    def create_admin(self, request, *args, **kwargs):
+        if UserModel.objects.filter(email="foo@bar.com").first() is not None:
+
+            return response.Response(data={"Super user already exists"})
+        UserModel.objects.create_superuser(email="foo@bar.com",password="foo",username="foo")
+        return response.Response(data={"message":"Superuser created"})
