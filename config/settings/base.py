@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
 ]
 PROJECT_APPS = ['config',
                 "apps.user.apps.UserConfig",
@@ -53,6 +54,7 @@ PROJECT_APPS = ['config',
 INSTALLED_APPS += PROJECT_APPS
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -189,11 +191,6 @@ DEFAULT_FROM_EMAIL=env.str('DJANGO_DEFAULT_FROM_EMAIL',default="**********")
 if DEBUG == True:
     SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"] = timedelta(hours=1)
 
-# DJANGO_CORS
-if not env.bool("DJANGO_CORS_ALLOW_ALL_ORIGINS",default=False):
-    CORS_ALLOW_ALL_ORIGINS=False
-    CORS_ALLOWED_ORIGINS=env.list("DJANGO_CORS_ALLOWED_ORIGINS",default=False)
-else:
-    CORS_ALLOW_ALL_ORIGINS=True
+CORS_ALLOW_ALL_ORIGINS=env.bool("DJANGO_CORS_ALLOW_ALL_ORIGINS",True)
 
 CORS_ALLOW_HEADERS=list(cors_default_headers)+["secret-key"]
