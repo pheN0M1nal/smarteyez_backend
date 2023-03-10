@@ -14,6 +14,7 @@ from pathlib import Path
 from .. import env
 from datetime import timedelta
 import os
+from corsheaders.defaults import default_headers as cors_default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
@@ -23,7 +24,7 @@ SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 
 CSRF_TRUSTED_ORIGINS = env.list(
     "CSRF_TRUSTED_ORIGINS",
-    default=["https://upstairscontent.com"],
+    default=["https://smart-eyez.onrender.com"],
 )
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DJANGO_DEBUG", True)
@@ -187,3 +188,12 @@ EMAIL_VERIFICATION_TOKEN_EXPIRATION_SECS = env.str('DJANGO_EMAIL_VERIFICATION_TO
 DEFAULT_FROM_EMAIL=env.str('DJANGO_DEFAULT_FROM_EMAIL',default="**********")
 if DEBUG == True:
     SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"] = timedelta(hours=1)
+
+# DJANGO_CORS
+if not env.bool("DJANGO_CORS_ALLOW_ALL_ORIGINS",default=False):
+    CORS_ALLOW_ALL_ORIGINS=False
+    CORS_ALLOWED_ORIGINS=env.list("DJANGO_CORS_ALLOWED_ORIGINS",default=False)
+else:
+    CORS_ALLOW_ALL_ORIGINS=True
+
+CORS_ALLOW_HEADERS=list(cors_default_headers)+["secret-key"]
